@@ -5,8 +5,9 @@ from models.dummies import *
 import joblib
 import logging
 
-model=joblib.load('./models/linear_reg_model.h5')
+model=joblib.load('./models/polynomial_regression_model.h5')
 scaler=joblib.load('./models/scaler.h5')
+poly_features=joblib.load('./models/poly_features.h5')
 
 #df=pd.read_csv('data/Life_Expectancy_Data.csv')
 
@@ -25,7 +26,7 @@ cost=st.number_input('Enter cost: ',min_value=5.0)
 unit_cost=st.number_input('Enter unit cost: ',min_value=5.0)
 unit_price=st.number_input('Enter unit price: ',min_value=5.0)
 customer_age=st.number_input('Enter customer age: ',min_value=10)
-hour=st.slider('Hour?',0,24,16)
+#hour=st.slider('Hour?',0,24,16)
 country=st.selectbox('Country? ',['United States','United Kingdom','France','Germany']) 
 country_selected=country_dummies[country]
 product_category=st.selectbox('Product Category? ',['Accessories','Bikes','Clothing']) 
@@ -43,7 +44,7 @@ sub_category_selected=sub_category_dummies[sub_category]
 gender=st.selectbox('Gender? ',['Male','Female']) 
 gender_selected=customer_gender_dummies[gender]
 
-data=[year,customer_age,unit_cost,unit_price,cost,hour]
+data=[year,customer_age,unit_cost,unit_price,cost]
 data.extend(country_selected)
 data.extend(product_category_selected)
 data.extend(sub_category_selected)
@@ -51,10 +52,12 @@ data.extend(gender_selected)
 
 #st.write(data)
 data_scaled=scaler.transform([data])
+#st.write(data_scaled)
+data_scaled_poly_transformed=poly_features.transform(data_scaled)
 
 try:
     st.header("Expected Profit is: ")
-    result=model.predict(np.array([data]))
+    result=model.predict(data_scaled_poly_transformed)
     st.write(result)
     #st.info("Expected profit is : ",result)
 except Exception as e:
